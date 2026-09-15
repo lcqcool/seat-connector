@@ -54,6 +54,16 @@ return [
     'character_name'     => '人物名',
     'connector_id'       => '授权器 ID',
     'connector_name'     => '授权器名',
+    'name_override'      => '显示名覆盖',
+    'connector_id_hint'    => '留空则不修改当前 QQ 绑定。',
+    'enter_connector_id'   => '填写 QQ 号',
+    'group_name'         => '群昵称',
+    'cancel'                => '取消',
+    'identity_not_found'    => '未找到该平台的绑定信息。',
+    'name_override_updated' => '显示名称已更新。',
+    'name_override_hint'    => '留空则使用平台昵称（如 QQ 群昵称）。',
+    'current_display_name'  => '当前显示名称',
+    'edit_display_name'     => '修改显示名称',
 
     'identities'         => '身份认证|身份认证',
 ];

@@ -33,6 +33,7 @@ use Seat\Web\Models\User as SeatUser;
  * @property int connector_id
  * @property string connector_name
  * @property string name_override
+ * @property string group_name
  * @property int user_id
  * @property int unique_id
  */
@@ -47,7 +48,7 @@ class User extends Model
      * @var array
      */
     protected $fillable = [
-        'connector_type', 'connector_id', 'connector_name', 'name_override', 'user_id', 'unique_id',
+        'connector_type', 'connector_id', 'connector_name', 'name_override', 'group_name', 'user_id', 'unique_id',
     ];
 
     /**
@@ -220,6 +221,10 @@ class User extends Model
             return $this->name_override;
         }
 
+        if($this->group_name != null && strlen($this->group_name)>0) {
+            return $this->group_name;
+        }
+
         $character = $this->user->main_character;
 
         if (is_null($character->name)) {
@@ -244,5 +249,23 @@ class User extends Model
         }
 
         return $nickname;
+    }
+
+    /**
+     * Effective display name for this identity.
+     *
+     * @return string
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if (! is_null($this->name_override) && strlen($this->name_override) > 0) {
+            return $this->name_override;
+        }
+
+        if (! is_null($this->group_name) && strlen($this->group_name) > 0) {
+            return $this->group_name;
+        }
+
+        return $this->connector_name;
     }
 }

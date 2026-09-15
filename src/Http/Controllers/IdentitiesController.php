@@ -21,6 +21,7 @@
 
 namespace Warlof\Seat\Connector\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Seat\Web\Http\Controllers\Controller;
 use Warlof\Seat\Connector\Models\User;
 
@@ -38,5 +39,33 @@ class IdentitiesController extends Controller
         $identities = User::where('user_id', auth()->user()->id)->get();
 
         return view('seat-connector::identities.list', ['drivers' => $drivers, 'identities' => $identities]);
+    }
+
+    /**
+     * Let a user update the display name of one of their own identities.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateName(Request $request)
+    {
+        $request->validate([
+            'connector_type' => 'required|string',
+            'name_override'  => 'nullable|string|max:255',
+        ]);
+
+        $identity = User::where('user_id', auth()->user()->id)
+            ->where('connector_type', $request->input('connector_type'))
+            ->first();
+
+        if (is_null($identity)) {
+            return redirect()->back()->with('error', trans('seat-connector::seat.identity_not_found'));
+        }
+
+        $name = $request->input('name_override');
+        $identity->name_override = (is_null($name) || strlen(trim($name)) === 0) ? null : trim($name);
+        $identity->save();
+
+        return redirect()->back()->with('success', trans('seat-connector::seat.name_override_updated'));
     }
 }

@@ -31,6 +31,11 @@ Route::group([
             ->uses('IdentitiesController@index')
             ->middleware('can:seat-connector.view');
 
+        Route::post('/identities/name')
+            ->name('seat-connector.identities.name')
+            ->uses('IdentitiesController@updateName')
+            ->middleware('can:seat-connector.view');
+
         Route::group([
             'middleware' => 'can:global.superuser',
         ], function (): void {

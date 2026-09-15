@@ -42,14 +42,14 @@ class UsersController extends Controller
     public function index(UserMappingDataTable $datatable)
     {
         // retrieve all registered SeAT Connector drivers
-        $available_drivers = config('seat-connector.drivers', []);
+        $available_drivers = config("seat-connector.drivers", []);
 
         // init the driver using either the query parameter or the first available driver
-        $driver = request()->query('driver') ?: Arr::get(Arr::last($available_drivers), 'name');
+        $driver = request()->query("driver") ?: Arr::get(Arr::last($available_drivers), "name");
 
         return $datatable
             ->addScope(new UserDataTableScope($driver))
-            ->render('seat-connector::users.list');
+            ->render("seat-connector::users.list");
     }
 
     /**
@@ -62,16 +62,16 @@ class UsersController extends Controller
 
         if (is_null($identity)) {
             return redirect()->back()
-                ->with('error', 'An error occurred attempting to delete the user mapping. Identity is not found.');
+                ->with("error", "An error occurred attempting to delete the user mapping. Identity is not found.");
         }
 
         // load driver instance
-        $config_key = sprintf('seat-connector.drivers.%s.client', $identity->connector_type);
+        $config_key = sprintf("seat-connector.drivers.%s.client", $identity->connector_type);
         $client = config($config_key);
 
         if (is_null($config_key) || ! class_exists($client)) {
             return redirect()->back()
-                ->with('error', sprintf('The client for driver %s is missing.', $identity->connector_type));
+                ->with("error", sprintf("The client for driver %s is missing.", $identity->connector_type));
         }
 
         try {
@@ -94,19 +94,20 @@ class UsersController extends Controller
             $identity->delete();
         } catch (DriverException $e) {
             return redirect()->back()
-                ->with('error', $e->getMessage());
+                ->with("error", $e->getMessage());
         }
 
         return redirect()->back()
-            ->with('success', 'Identity has been successfully dropped.');
+            ->with("success", "Identity has been successfully dropped.");
     }
 
     public function edit(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|integer',
-            'name_override' => 'nullable|string',
-            'name_override_enable'=>'nullable'
+            "user_id" => "required|integer",
+            "connector_id" => "nullable|string|max:255",
+            "name_override" => "nullable|string",
+            "name_override_enable"=>"nullable"
         ]);
 
         // attempt to retrieve requested identity
@@ -114,16 +115,21 @@ class UsersController extends Controller
 
         if (is_null($identity)) {
             return redirect()->back()
-                ->with('error', 'An error occurred while attempting to edit a user mapping. User not found.');
+                ->with("error", "An error occurred while attempting to edit a user mapping. User not found.");
         }
 
-        $name_override_enabled = $request->name_override_enable !== null; // checkboxes are annoying
+        // Admin can reassign QQ binding
+        if ($request->connector_id !== null && strlen(trim($request->connector_id)) > 0) {
+            $identity->connector_id = trim($request->connector_id);
+        }
+
+        $name_override_enabled = $request->name_override_enable !== null;
         $name_override = $request->name_override;
         $name_override_valid = $name_override !== null && strlen($name_override)>0;
 
         if($name_override_enabled && !$name_override_valid) {
             return redirect()->back()
-                ->with('error', 'An error occurred while attempting to edit a user mapping: Invalid name override.');
+                ->with("error", "An error occurred while attempting to edit a user mapping: Invalid name override.");
         }
 
         if($name_override_enabled) {
@@ -135,6 +141,6 @@ class UsersController extends Controller
         $identity->save();
 
         return redirect()->back()
-            ->with('success', 'Successfully updated name override!');
+            ->with("success", "Successfully updated!");
     }
 }
