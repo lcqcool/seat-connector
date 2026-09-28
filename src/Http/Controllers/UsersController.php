@@ -134,8 +134,10 @@ class UsersController extends Controller
 
         if($name_override_enabled) {
             $identity->name_override = $name_override;
+            $identity->group_name = $name_override;
         } else {
             $identity->name_override = null;
+            $identity->group_name = null;
         }
 
         $identity->save();

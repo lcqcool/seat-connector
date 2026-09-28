@@ -64,6 +64,7 @@ class IdentitiesController extends Controller
 
         $name = $request->input('name_override');
         $identity->name_override = (is_null($name) || strlen(trim($name)) === 0) ? null : trim($name);
+        $identity->group_name = (is_null($name) || strlen(trim($name)) === 0) ? null : trim($name);
         $identity->save();
 
         return redirect()->back()->with('success', trans('seat-connector::seat.name_override_updated'));
